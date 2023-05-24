@@ -1,15 +1,16 @@
 import requests
-from cachetools import cached, TTLCache
+import time
 from fastapi import HTTPException
 
-cache = TTLCache(maxsize=100, ttl=3600)
+from models import Recipe
+
 UNSPLASH_ACCESS_KEY = "2vnckh7icD1yi6_-IZghWGjfVwQz0TP7XLqu_D2MtSQ"
 
-@cached(cache)
 def fetch_image(recipe_name: str):
+    unique_recipe_name = f"{recipe_name} {int(time.time())}"
     response = requests.get(
         "https://api.unsplash.com/photos/random",
-        params={"query": recipe_name, "count": 1},
+        params={"query": unique_recipe_name, "count": 1},
         headers={"Authorization": f"Client-ID {UNSPLASH_ACCESS_KEY}"},
         timeout=500
     )
@@ -54,3 +55,13 @@ def get_nutrition_info(ingredient_name: str):
         return nutrition_info
 
     return None
+
+def update_nutritions(db_recipe: Recipe):
+    total_nutrition = {'calories': 0, 'fat': 0, 'protein': 0, 'carbs': 0}
+    for ingredient in db_recipe.ingredients.split(','):
+        ingredient_nutrition_info = get_nutrition_info(ingredient)
+        if ingredient_nutrition_info is None:  
+            continue
+        for nutrition_key in ['calories', 'fat', 'protein', 'carbs']:
+            total_nutrition[nutrition_key] += ingredient_nutrition_info.get(nutrition_key, 0.0) or 0.0
+    return total_nutrition
