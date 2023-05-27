@@ -5,7 +5,7 @@ from models import Base
 SQL_DB_URL = "sqlite:///./db.sqlite"
 
 engine = create_engine(
-    SQL_DB_URL, connect_args={"check_same_thread":False},encoding="utf8",
+    SQL_DB_URL, connect_args={"check_same_thread":False},
 )
 SessionLocal = sessionmaker(autocommit=False,autoflush=False,bind=engine)
 
