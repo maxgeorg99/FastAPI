@@ -73,7 +73,10 @@ def add_recipe(recipe: RecipeModel, db: Session = Depends(get_db)):
 @app.get("/recipes/")
 def get_recipes(db: Session = Depends(get_db)):
     recipes = db.query(Recipe).all()
-    return random.sample(recipes, 3)
+    if(len(recipes) > 3):
+         return random.sample(recipes,3)
+    else:
+         return random.sample(recipes,len(recipes))
 
 @app.get("/shoppinglist/{recipe_id}")
 def get_shopping_list(recipe_id: int, db: Session = Depends(get_db)):
